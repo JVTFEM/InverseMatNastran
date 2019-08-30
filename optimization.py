@@ -57,9 +57,13 @@ def myEvaluate(x, obj, g, param):
 # Start by setting up a transformation matrix to transform points
 # from the DIC to the FEM coordinate systems.  Do only once for each
 # sample
+#
+#-- Setup a transformation matrix if necessary
 #femPnts = np.array( [[0., 0.],[1., 0.],[0., 1.],[1., 1.]] )
 #dicPnts = np.array( [[1., 1.],[3., 1.],[1., 4.],[3., 4.]] )
 #transMat  = setupTransform(femPnts, dicPnts)
+#
+#-- For the current example no transformation matrix is required
 transMat = None
 
 # Now start setting up the optimization environment
@@ -70,7 +74,6 @@ nCons = 0  # We have not constraints
 x  = nm.empty(nDvar, float)
 xl = nm.empty(nDvar, float)
 xu = nm.empty(nDvar, float)
-
 for i in range(nDvar):
     xl[i] = 2.
     xu[i] = 20.
@@ -80,10 +83,10 @@ for i in range(nDvar):
 aDot = dot.dot()
 
 # Set the DOT parameters
-aDot.nPrint = 3
-aDot.nMethod = 1
+aDot.nPrint   = 3
+aDot.nMethod  = 1
 aDot.evaluate = myEvaluate
-aDot.nmParam  = transMat    # Simply pass through the transformatoin matrix
+aDot.nmParam  = transMat    # Simply pass through the transformationn matrix as a parameter
 
 # Call DOT to perform the optimization
 aDot.dotcall(x, xl, xu, nCons)

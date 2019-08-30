@@ -28,8 +28,9 @@ import matplotlib.pylab as plt
 # GENESIS and gzip installations
 # These values are machine specific and may need to be updated
 # -------------------------------------------------------------------
-GENESIS = '/opt/vrand/bin/genesis'
-ZIP     = '/usr/bin/gzip'
+GENESIS   = '/opt/vrand/bin/genesis'
+ZIP       = '/usr/bin/gzip'
+ZIP_FLAGS = ['-f', '-d']
 
 
 # -------------------------------------------------------------------
@@ -109,7 +110,10 @@ def runGENESIS(bdfFile, unZipOP2=False):
     
     # If requested, unzip the OP2 file
     if ( unZipOP2 ):
-        sp.run([ZIP, '-f', '-d', getGenesisOP2Filename(bdfFile,compressed=True)])
+        args = [ZIP]
+        args.extend( ZIP_FLAGS )
+        args.append( getGenesisOP2Filename(bdfFile,compressed=True) )
+        sp.run( args )
         
     return
 
@@ -279,13 +283,26 @@ def transformDICPnts( transMat, dicPnts ):
     
     # Return a matrix with the transformed coordinates
     return np.array( [newX, newY] ).transpose()
-            
-# Do some basic testing
-print( getGenesisOP2Filename('platewithhole_FEM.dat', 0, True) )
-changeMAT1Card('platewithhole_FEM.dat', 1, 6.898e10, 2.5e10)
-runGENESIS( 'platewithhole_FEM.dat', unZipOP2=True )
-print( getObjectiveFn( 'platewithhole_FEM.dat', 'exp_data.dat', 1 ) )
 
+            
+# -------------------------------------------------------------------
+# A few simple test cases for testing this file by itself 
+# Uncomment as necessary
+# -------------------------------------------------------------------
+
+#-- Test the generation of a Genesis op2filename
+#print( getGenesisOP2Filename('platewithhole_FEM.dat', 0, True) )
+
+#-- Test changing the MAT1 card data in the dat file
+#changeMAT1Card('platewithhole_FEM.dat', 1, 6.898e10, 2.5e10)
+
+#-- Test the running of a Genesis job
+#runGENESIS( 'platewithhole_FEM.dat', unZipOP2=True )
+
+#-- Test the calculation of the objective function value
+#print( getObjectiveFn( 'platewithhole_FEM.dat', 'exp_data.dat', 1 ) )
+
+# -- Test the affine transformation
 #femPnts = np.array( [[0., 0.],[1., 0.],[0., 1.],[1., 1.]] )
 #dicPnts = np.array( [[1., 1.],[3., 1.],[1., 4.],[3., 4.]] )
 #transMat  = setupTransform(femPnts, dicPnts)
