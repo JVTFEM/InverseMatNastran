@@ -37,8 +37,6 @@ The sample is subjected to a simple tensile test and the full displacement field
 | G           | 25.93 GPa      |
 | Poison's Ratio | 0.33 |
 
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;E=2 G ( 1 + \nu )" title="\Large&space;E=2 G ( 1 + \nu )" />
-
 Note that the optimization is performed in terms of E and G instead of E and the Poison's ratio.  This makes life a bit easier for the optimizer since both variables have roughly the same order of magnitude.
 
 # Getting started
