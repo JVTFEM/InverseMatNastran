@@ -8,10 +8,17 @@
 # -------------------------------------------------------------------
 import dot as dot
 import numpy as nm
+import pandas as pd
+import pathlib
 import analysis as anal     # Library of utility functions for use
                             # with GENESIS linear static analysis
                             # using the pyNastran interface
-
+f = open("exp_data.dat", "w",newline='')
+current_folder = str(pathlib.Path.cwd())
+csv_file_name  = str(list(pathlib.Path(current_folder).glob('*.csv'))[0]).replace(current_folder+'\\','')
+new_file_data = pd.read_csv(csv_file_name).to_csv(header=None,index=False)
+f.write(str(new_file_data))
+f.close()
 # -------------------------------------------------------------------
 # BDF, OP2 and experimental data files
 # -------------------------------------------------------------------
