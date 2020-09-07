@@ -8,22 +8,47 @@
 # -------------------------------------------------------------------
 import dot as dot
 import numpy as nm
-import pandas as pd
-import pathlib
 import analysis as anal     # Library of utility functions for use
                             # with GENESIS linear static analysis
                             # using the pyNastran interface
-f = open("exp_data.dat", "w",newline='')
-current_folder = str(pathlib.Path.cwd())
-csv_file_name  = str(list(pathlib.Path(current_folder).glob('*.csv'))[0]).replace(current_folder+'\\','')
-new_file_data = pd.read_csv(csv_file_name).to_csv(header=None,index=False)
-f.write(str(new_file_data))
-f.close()
+# -------------------------------------------------------------------
+# Generating the required data file in the required format
+# -------------------------------------------------------------------
+def exp_fname(fname):
+    import pandas as pd
+    import pathlib
+    
+    # Get the path of the current directory
+    Path1 = str(pathlib.Path.cwd())
+    
+    # Get the name of all ".csv" files in current directory
+    csv_s = list(pathlib.Path(Path1).glob('*.csv'))  
+    
+    if csv_s == []:
+    # If no ".csv" files can be found use the default data file
+        print("NO csv FILE FOUND USING DEFAULT FILE")
+        fname = "exp_data.dat"
+        
+    else:
+    # If ".csv" file(s) are found, use the first avalaible file and 
+    # generate the experimental data file according to requested file name
+        
+        csv_file_name = str(csv_s[0]).replace(str(Path1)+'\\','')
+        file_data = pd.read_csv(csv_file_name)
+        new_file  = file_data.to_csv(header=None,index=False)
+        f = open(fname, "w",newline='')
+        f.write(str(new_file))
+        f.close()
+        
+    return fname
+
+
 # -------------------------------------------------------------------
 # BDF, OP2 and experimental data files
 # -------------------------------------------------------------------
+
 BDF_FILE = 'platewithhole_FEM.dat'
-EXP_FILE = 'exp_data.dat'   #(ID, x_loc, y_loc, z_loc, Tx, Ty, Tz)
+EXP_FILE = exp_fname('exp_data.csv')   #(ID, x_loc, y_loc, z_loc, Tx, Ty, Tz)
 
 
 # -------------------------------------------------------------------
@@ -46,7 +71,7 @@ def myEvaluate(x, obj, g, param):
     anal.changeMAT1Card( BDF_FILE, 1, E, G )
     
     # Run GENESIS
-    anal.runGENESIS( BDF_FILE, unZipOP2=True )
+    anal.runGENESIS( BDF_FILE, unZipOP2=False )
     
     # Get the objective function value.  We multiply it with a large 
     # value to get optimum values in the range of 1 or so (better for
