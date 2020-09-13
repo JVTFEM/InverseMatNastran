@@ -11,9 +11,6 @@ import numpy as nm
 import analysis as anal     # Library of utility functions for use
                             # with GENESIS linear static analysis
                             # using the pyNastran interface
-# -------------------------------------------------------------------
-# Generating the required data file in the required format
-# -------------------------------------------------------------------
 def exp_fname(fname):
     import pandas as pd
     import pathlib
@@ -41,14 +38,11 @@ def exp_fname(fname):
         f.close()
         
     return fname
-
-
 # -------------------------------------------------------------------
 # BDF, OP2 and experimental data files
 # -------------------------------------------------------------------
-
-BDF_FILE = 'platewithhole_FEM.dat'
-EXP_FILE = exp_fname('exp_data.csv')   #(ID, x_loc, y_loc, z_loc, Tx, Ty, Tz)
+BDF_FILE = 'thin_plt_sim1-solution_1.dat'
+EXP_FILE = exp_fname('exp_data.dat')   #(ID, x_loc, y_loc, z_loc, Tx, Ty, Tz)
 
 
 # -------------------------------------------------------------------
@@ -59,13 +53,41 @@ EXP_FILE = exp_fname('exp_data.csv')   #(ID, x_loc, y_loc, z_loc, Tx, Ty, Tz)
 #         param - Possible pass through parameters - in this case the
 #                 the transformation matrix
 # -------------------------------------------------------------------
+def get_units(fname):
+    cur_file  = open(fname,"r+")
+    cur_file.seek(0,2)
+    no_chars = cur_file.tell()
+    cur_file.seek(0,0)
+    ind = 0
+    cur_pos = cur_file.tell()
+
+    while cur_pos <= no_chars and ind < 40:
+        ind += 1
+        line = cur_file.readline()
+        cur_pos = cur_file.tell()
+        if "mm" in line:
+            units = "mm"
+            break
+        if "Meter" in line:
+            units = "M"
+            break
+    cur_file.close()
+    return units
+
+units = get_units(BDF_FILE)
+
 def myEvaluate(x, obj, g, param):
 
     # We unscale the design variables here.  We work with E and G 
     # since they have roughly the same order of magnitude (better for
     # the optimizer)
-    E = x[0] * 1.e10
-    G = x[1] * 1.e10
+    if units == 'mm':
+        scalar = 1.e7
+    else:
+        scalar = 1.e10   
+
+    E = x[0] * scalar
+    G = x[1] * scalar
 
     # Change the GENESIS input file
     anal.changeMAT1Card( BDF_FILE, 1, E, G )
@@ -111,6 +133,7 @@ for i in range(nDvar):
     xu[i] = 20.
     x[i]  = 10.
 
+x[1] = x[0]/3 
 # Instantiate the DOT object
 aDot = dot.dot()
 
