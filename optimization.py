@@ -41,7 +41,7 @@ def exp_fname(fname):
 # -------------------------------------------------------------------
 # BDF, OP2 and experimental data files
 # -------------------------------------------------------------------
-BDF_FILE = 'thin_plt_sim1-solution_1.dat'
+BDF_FILE = 'platewithhole_FEM.dat'
 EXP_FILE = exp_fname('exp_data.dat')   #(ID, x_loc, y_loc, z_loc, Tx, Ty, Tz)
 
 
