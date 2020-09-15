@@ -54,24 +54,40 @@ EXP_FILE = exp_fname('exp_data.dat')   #(ID, x_loc, y_loc, z_loc, Tx, Ty, Tz)
 #                 the transformation matrix
 # -------------------------------------------------------------------
 def get_units(fname):
-    cur_file  = open(fname,"r+")
+    cur_file  = open(fname,"r")
+    
+    #Determine the total number of characters in file
     cur_file.seek(0,2)
     no_chars = cur_file.tell()
+    
+    #Set cursor back to starting position
     cur_file.seek(0,0)
-    ind = 0
-    cur_pos = cur_file.tell()
+    cur_pos = 0
 
-    while cur_pos <= no_chars and ind < 40:
-        ind += 1
+    while cur_pos <= no_chars:
+
         line = cur_file.readline()
         cur_pos = cur_file.tell()
-        if "mm" in line:
-            units = "mm"
-            break
-        if "Meter" in line:
-            units = "M"
-            break
+
+        if "$*                UNITS:" in line:
+            
+            #Look for presense of "mm" in units line
+            if "mm" in line:
+                units = "mm"
+                cur_file.close()
+                break
+            
+            #Look for presense of "Meter" in units line
+            if "Meter" in line:
+                units = "M"
+                cur_file.close()
+                break
+                
+    #if the units could not be found the default unit is assumed
+    #to be in mm
+    units = "mm"            
     cur_file.close()
+    
     return units
 
 units = get_units(BDF_FILE)
@@ -82,8 +98,10 @@ def myEvaluate(x, obj, g, param):
     # since they have roughly the same order of magnitude (better for
     # the optimizer)
     if units == 'mm':
-        scalar = 1.e7
+        # mN/mm^2 
+        scalar = 1.e7   
     else:
+        # N/m^2
         scalar = 1.e10   
 
     E = x[0] * scalar
@@ -132,8 +150,9 @@ for i in range(nDvar):
     xl[i] = 2.
     xu[i] = 20.
     x[i]  = 10.
-
+# Poision's ratio set to 0.5 as default value, therefore G = E/3
 x[1] = x[0]/3 
+
 # Instantiate the DOT object
 aDot = dot.dot()
 
